@@ -1,3 +1,31 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MyAnimeWatchListTool;
+using MyAnimeWatchListTool.Configuration;
+using Serilog;
 
-Console.WriteLine("Hello, World!");
+var hostBuilder = new HostBuilder();
+
+hostBuilder.ConfigureAppConfiguration(config =>
+{
+    config.AddJsonFile("Configuration/Config.json", false);
+});
+
+hostBuilder.ConfigureServices((hostContext, services) =>
+{
+    var config = hostContext.Configuration.Get<Config>();
+    services.AddSingleton(config!);
+    services.AddHostedService<StartUp>();
+    services.AddHttpClient();
+    services.AddLogging(logging =>
+    {
+        var logger = new LoggerConfiguration()
+            .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}{Exception}")
+            .MinimumLevel.Information()
+            .CreateLogger();
+        logging.AddSerilog(logger);
+    });
+});
+
+await hostBuilder.RunConsoleAsync();
