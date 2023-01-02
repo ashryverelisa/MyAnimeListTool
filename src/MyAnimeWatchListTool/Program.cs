@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyAnimeWatchListTool;
 using MyAnimeWatchListTool.Configuration;
+using MyAnimeWatchListTool.Services;
+using MyAnimeWatchListTool.Services.Interfaces;
 using Serilog;
 
 var hostBuilder = new HostBuilder();
@@ -18,6 +20,7 @@ hostBuilder.ConfigureServices((hostContext, services) =>
     services.AddSingleton(config!);
     services.AddHostedService<StartUp>();
     services.AddHttpClient();
+    services.AddTransient<IMyAnimeListService, MyAnimeListService>();
     services.AddLogging(logging =>
     {
         var logger = new LoggerConfiguration()
