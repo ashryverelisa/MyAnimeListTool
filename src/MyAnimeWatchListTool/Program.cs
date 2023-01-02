@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Driver;
 using MyAnimeWatchListTool;
 using MyAnimeWatchListTool.Configuration;
+using MyAnimeWatchListTool.Repositories;
+using MyAnimeWatchListTool.Repositories.Interfaces;
 using MyAnimeWatchListTool.Services;
 using MyAnimeWatchListTool.Services.Interfaces;
 using Serilog;
@@ -20,7 +23,13 @@ hostBuilder.ConfigureServices((hostContext, services) =>
     services.AddSingleton(config!);
     services.AddHostedService<StartUp>();
     services.AddHttpClient();
+    services.AddSingleton<IMongoClient>(_ => new MongoClient(config!.MongoConnection));
+    services.AddTransient<IAnimeRankingRepository, AnimeRankingRepository>();
+    services.AddTransient<IAnimeDetailsRepository, AnimeDetailsRepository>();
+    services.AddTransient<ISeasonalAnimeRepository, SeasonalAnimeRepository>();
+    services.AddTransient<ISuggestedAnimeRepository, SuggestedAnimeRepository>();
     services.AddTransient<IMyAnimeListService, MyAnimeListService>();
+    services.AddTransient<IAnimeService, AnimeService>();
     services.AddLogging(logging =>
     {
         var logger = new LoggerConfiguration()
